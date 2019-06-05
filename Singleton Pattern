@@ -1,0 +1,43 @@
+class Singleton{
+    // a descent way to handle multithreading could be volatile
+    
+    private volatile static Singleton singleton;
+    
+    private Singleton(){
+        System.out.println("this is " + new Random().nextInt(50));        
+    }
+    
+    public static Singleton getInstance(){
+        // we can synchronized whole method, however, it's quite expensive
+        if(singleton == null){
+            // then we only synchronized a block for the very first time
+            synchronized(Singleton.chalss){
+                if(singleton == null){
+                    System.out.println("oops, it's null");
+                    singleton = new Singleton();
+                }
+            }
+            
+        } 
+        return singleton;
+    }
+    
+}
+
+public class Create{
+    public static void main(String[] args){
+        static int i = 0;
+        for(; i<15; i++){
+            new Thread(){
+                public void run(){
+                    Singleton s1 = Singleton.getInstance();
+                    System.out.println("I'm thread " + i);
+                }
+            }.start();
+        }
+        //Singleton s1 = Singleton.getInstance();
+        //Singleton s2 = Singleton.getInstance();
+        // Singleton s3 = new Singleton().getInstance();
+    }
+    
+}

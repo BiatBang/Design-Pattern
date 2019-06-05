@@ -1,0 +1,62 @@
+abstract class Beverage{
+    String description = "Guess what this beverage is?";
+    public abstract double cost();
+    public String getDescription(){
+        return description;
+    }
+}
+
+abstract class Condiment extends Beverage{
+    // no need of any vars
+    public abstract String getDescription();
+}
+
+class Mocha extends Condiment{
+    // need to know what "main" beverage I'm decorating
+    private Beverage beverage;
+    // these vars may not be necessary, just putting const into sentences is okay
+    private double price;
+    private String description;
+    
+    public Mocha(Beverage beverage){
+        this.beverage = beverage;
+        this.price = 0.20;
+        this.description = ", Mocha";
+    }
+    
+    public double cost(){
+        return this.beverage.cost() + this.price;
+    }
+    
+    public String getDescription(){
+        return this.beverage.getDescription() + this.description;
+    }
+}
+
+class Espresso extends Beverage{
+    private String description;
+    private double price;
+    
+    public Espresso(){
+        this.description = "A cup of espresso";
+        this.price = 0.90;
+    }
+    
+    public String getDescription(){
+        return this.description;
+    }
+    
+    public double cost(){
+        return this.price;    
+    }
+}
+
+public class Order{
+    public static void main(String[] args){
+        Beverage b1 = new Espresso();
+        b1 = new Mocha(b1);
+        b1 = new Mocha(b1);
+        System.out.println(b1.getDescription() + ", and price is " + b1.cost());
+        // out: A cup of espresso, Mocha, Mocha, and price is 1.3
+    }
+}

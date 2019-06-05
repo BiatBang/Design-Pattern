@@ -1,0 +1,100 @@
+public interface Subject{
+    public void addObserver(Observer o);
+    public void removeObserver(Observer o);
+    public void notifyAll();
+}
+
+public interface Observer{
+    public void update(); // params TBA
+}
+
+public class WeatherData implements Subject{
+    private float temperature;
+    private float pressure;
+    private float humidity;
+    
+    private List<> observers;
+    
+    public WeatherData(){
+        // vars initializations
+        observers = new ArrayList();
+    }
+    
+    @Override
+    public void addObserver(Observer o){
+        this.observers.add(o);
+    }
+    
+    @Override
+    public void removeObserver(Observer o){
+        int index = observers.indexOf(o);
+        if(index >= 0) this.observers.remove(index);
+    }
+    
+    @Override
+    public void notifyAll(){
+        for(Observer obs: observers){
+            obs.update(this.temperature, this.humidity, this.pressure);
+        }
+    }
+    
+    public float getTemperature(){
+        // just getters
+    }
+    
+    public void measuremensChanged(){
+        notifyAll();
+    }    
+}
+
+public class Display1 implements Observer{
+    private float temperature;
+    private float pressure;
+    private float humidity;
+    
+    @Override
+    public void update(float temperature, float humidity, float pressure){
+        this.temperature = temperature;
+    }
+    
+    public void display(){
+        System.out.println("temperature is " + this.temperature);
+    }
+}
+
+// using java built-in observer and observable
+
+public class WeatherData extends Observable{
+    private float temperature;
+    private float pressure;
+    private float humidity;
+        
+    public WeatherData(){ }
+    
+    // three getters
+    
+    public void measuremensChanged(){
+        setchanged() // from Observable, this is a must
+        notifyObservers(); // from Observable
+    }  
+}
+
+public class Display1{
+    private Observable observable;
+    // 3 attributes
+    
+    public Display1(Observable observable){
+        this.observable = observable;
+        observable.addObserver(this);
+    }
+    
+    public void updata(Observer obs, Object args){
+        if(obs instanceof WeatherData){ // check source
+            WeatherData weatherData = (WeatherData)obs;
+            // take out attributes to assign attr here
+            display()
+        }
+    }
+    
+    public void display(){ }
+}

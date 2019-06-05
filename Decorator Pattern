@@ -1,9 +1,16 @@
 abstract class Beverage{
     String description = "Guess what this beverage is?";
+    private int size;
+    
     public abstract double cost();
+    
     public String getDescription(){
         return description;
     }
+    
+    public int getSize(){ return this.size; }
+   
+    public void setSize(int size){ this.size = size; }
 }
 
 abstract class Condiment extends Beverage{
@@ -15,17 +22,26 @@ class Mocha extends Condiment{
     // need to know what "main" beverage I'm decorating
     private Beverage beverage;
     // these vars may not be necessary, just putting const into sentences is okay
-    private double price;
+    private double[] prices;
     private String description;
+    private int size;
     
     public Mocha(Beverage beverage){
         this.beverage = beverage;
-        this.price = 0.20;
+        this.prices = new double[]{0.15, 0.20, 0.25};
         this.description = ", Mocha";
+        this.size = this.beverage.getSize();
     }
     
+    // this is a M-U-S-T, because we can face Mocha(Mocha(Mocha(...))),
+    // if there is no getSize() in Mocha, compiler will be confused.
+    public int getSize(){ 
+        return this.size; 
+    }
+
+    
     public double cost(){
-        return this.beverage.cost() + this.price;
+        return this.beverage.cost() + this.prices[this.beverage.getSize()];
     }
     
     public String getDescription(){
@@ -35,11 +51,11 @@ class Mocha extends Condiment{
 
 class Espresso extends Beverage{
     private String description;
-    private double price;
+    private double[] prices;
     
     public Espresso(){
         this.description = "A cup of espresso";
-        this.price = 0.90;
+        this.prices = new double[]{1.50, 1.90, 2.30};
     }
     
     public String getDescription(){
@@ -47,16 +63,23 @@ class Espresso extends Beverage{
     }
     
     public double cost(){
-        return this.price;    
+        return this.prices[this.getSize()];    
     }
 }
 
 public class Order{
+    public final static int TALL = 0;
+    public final static int GRANDE = 1;
+    public final static int VENTI = 2;
+    
     public static void main(String[] args){
         Beverage b1 = new Espresso();
+        b1.setSize(VENTI);
+        b1 = new Mocha(b1);
+        b1 = new Mocha(b1);
         b1 = new Mocha(b1);
         b1 = new Mocha(b1);
         System.out.println(b1.getDescription() + ", and price is " + b1.cost());
-        // out: A cup of espresso, Mocha, Mocha, and price is 1.3
+        // out: A cup of espresso, Mocha, Mocha, and price is 1.3  + ", size " + b1.getSize()
     }
 }

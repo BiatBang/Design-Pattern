@@ -1,0 +1,27 @@
+public class PizzaStore{
+    // Simple factory
+    SimplePizzaFactory spf = new SimplePizzaFactory();
+    
+    public PizzaStore(SimplePizzaFactory spf){
+        this.spf = spf;
+    }
+    
+    public Pizza orderPizza(String type){
+        Pizza pizza = spf.createPizza("cheese");
+        pizza.cook();
+        return pizza;
+    }
+    
+    
+}
+
+public class SimplePizzaFactory{
+    Pizza pizza = null;
+    public Pizza createPizza(String type){
+        if(type.equalsTo("cheese")){
+            pizza = new CheesePizza();
+        }
+        
+        return pizza;
+    }
+}

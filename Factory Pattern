@@ -10,9 +10,7 @@ public class PizzaStore{
         Pizza pizza = spf.createPizza("cheese");
         pizza.cook();
         return pizza;
-    }
-    
-    
+    } 
 }
 
 public class SimplePizzaFactory{
@@ -25,3 +23,61 @@ public class SimplePizzaFactory{
         return pizza;
     }
 }
+
+
+
+// make pizzastore abstract
+
+public abstract class PizzaStore{
+    public abstract Pizza createPizza(String type);
+    
+    public Pizza orderPizza(String type){
+        Pizza pizza = createPizza(type);
+        
+        pizza.prepare();
+        pizza.cook();
+    }
+}
+
+public class NYPizzaStore extends PizzaStore{
+    public Pizza createPizza(String type){
+        if(type.equals("cheese")){
+            return new NYCheesePizza();
+        }else if(type.equals("veggie")){
+            return new NYVeggiePizza(); 
+        }
+    }
+}
+
+pubilc abstract class Pizza{
+    String name;
+    String sauce;
+    
+    public void prepare(){
+        System.out.println("preparing " + name);
+        System.out.println("adding sauce: " + sauce);
+    }
+    
+    public void cook(){
+        System.out.println("Bake 15 mins");
+    }
+}
+
+public class NYCheesePizza extends Pizza{
+    pubilc NYCheesePizza(){
+        name = "NY style pizza with cheese";
+        sauce = "Marinara";
+    }
+}
+
+public class PizzaTest{
+    public static void main(String[] args){
+        PizzaStore pizzastore = new NYPizzaStore();
+        Pizza pizza = pizzastore.orderPizza("cheese");
+        // here I can only use one line to create a cheese ny pizza
+        // without factory it would beduplicated
+    }
+}
+
+
+

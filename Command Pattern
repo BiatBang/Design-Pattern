@@ -1,5 +1,5 @@
 public class Light{
-    public String room;
+    private String room;
     
     public Light(String room){
         this.room = room;
@@ -14,12 +14,53 @@ public class Light{
     }
 }
 
+public class CeilingFan{
+    public final int HIGH = 3;
+    public final int MEDIUM = 2;
+    public final int LOW = 1;
+    public final int OFF = 0;
+    private int speed;
+    private String room;
+    
+    public CeilingFan(String room){
+        this.room = room;
+        speed = oFF;
+    }
+    
+    public void high(){
+        speed = HIGH;
+        System.out.println("fan speed is high.");
+    }
+    
+    public void medium(){
+        speed = MEDIUM;
+        System.out.println("fan speed is medium.");
+    }
+    
+    public void low(){
+        speed = LOW;
+        System.out.println("fan speed is low.");
+    }
+    
+    public void off(){
+        speed = OFF;
+        System.out.println("fan speed is off.");    
+    }
+    
+    public int getSpeed(){
+        return speed;
+    }
+}
+
 public interface Command{
     public void execute();
+    public void undo();
+    public void store(); // in case crashes occur, 
+    public void load(); // after a crash occures, however not very appliable
 }
 
 public class LightOnCommand implements Command{
-    public Light light;
+    private Light light;
     
     public LightOnCommand(Light light){
         this.light = light;
@@ -28,10 +69,14 @@ public class LightOnCommand implements Command{
     public void execute(){
         light.on();
     }
+    
+    public void undo(){
+        light.off();
+    }
 }
 
 public class LightOffCommand implements Command{
-    public Light light;
+    private Light light;
     
     public LightOffCommand(Light light){
         this.light = light;
@@ -40,19 +85,155 @@ public class LightOffCommand implements Command{
     public void execute(){
         light.off();
     }
+    
+    public void undo(){
+        light.on();
+    }
+}
+
+public class CeilingFanHighCommand implements Command{
+    CeilingFan ceilingFan;
+    int prevSpeed;
+    
+    public CeilingFanHighCommand(CeilingFan ceilingFan){
+        this.ceilingFan = ceilingFan;
+    }
+    
+    public void execute(){
+        prevSpeed = ceilingFan.getSpeed();
+        ceilingFan.high();
+    }
+    
+    public void undo(){
+        switch(prevSpeed){
+            case(Ceiling.HIGH):{
+                ceilingFan.high();
+                break;
+            }case(Ceiling.MEDIUM):{
+                ceilingFan.medium();
+                break;
+            }case(Ceiling.LOW):{
+                ceilingFan.low();
+                break;
+            }case(Ceiling.OFF):{
+                ceilingFan.off();
+                break;
+            }
+        }
+    }
+}
+
+public class CeilingFanMediumCommand implements Command{
+    CeilingFan ceilingFan;
+    int prevSpeed;
+    
+    public CeilingFanHighCommand(CeilingFan ceilingFan){
+        this.ceilingFan = ceilingFan;
+    }
+    
+    public void execute(){
+        prevSpeed = ceilingFan.getSpeed();
+        ceilingFan.medium();
+    }
+    
+    public void undo(){
+        switch(prevSpeed){
+            case(Ceiling.HIGH):{
+                ceilingFan.high();
+                break;
+            }case(Ceiling.MEDIUM):{
+                ceilingFan.medium();
+                break;
+            }case(Ceiling.LOW):{
+                ceilingFan.low();
+                break;
+            }case(Ceiling.OFF):{
+                ceilingFan.off();
+                break;
+            }
+        }
+    }
+}
+
+public class CeilingFanLowCommand implements Command{
+    CeilingFan ceilingFan;
+    int prevSpeed;
+    
+    public CeilingFanHighCommand(CeilingFan ceilingFan){
+        this.ceilingFan = ceilingFan;
+    }
+    
+    public void execute(){
+        prevSpeed = ceilingFan.getSpeed();
+        ceilingFan.low();
+    }
+    
+    public void undo(){
+        switch(prevSpeed){
+            case(Ceiling.HIGH):{
+                ceilingFan.high();
+                break;
+            }case(Ceiling.MEDIUM):{
+                ceilingFan.medium();
+                break;
+            }case(Ceiling.LOW):{
+                ceilingFan.low();
+                break;
+            }case(Ceiling.OFF):{
+                ceilingFan.off();
+                break;
+            }
+        }
+    }
+}
+
+public class CeilingFanOffCommand implements Command{
+    CeilingFan ceilingFan;
+    int prevSpeed;
+    
+    public CeilingFanHighCommand(CeilingFan ceilingFan){
+        this.ceilingFan = ceilingFan;
+    }
+    
+    public void execute(){
+        prevSpeed = ceilingFan.getSpeed();
+        ceilingFan.off();
+    }
+    
+    public void undo(){
+        switch(prevSpeed){
+            case(Ceiling.HIGH):{
+                ceilingFan.high();
+                break;
+            }case(Ceiling.MEDIUM):{
+                ceilingFan.medium();
+                break;
+            }case(Ceiling.LOW):{
+                ceilingFan.low();
+                break;
+            }case(Ceiling.OFF):{
+                ceilingFan.off();
+                break;
+            }
+        }
+    }
 }
 
 public class RemoteControl{
+    // undo within
     // Remote Control only binds button and command, doesn't care bind to which furniture
     Command[] onCommands;
     Command[] offCommands;
+    Command undoCommand;
+    int numButton;
     
-    pubilc RemoteControl(){
-        onCommands = new Command[2];
-        offCommands = new Command[2];
+    pubilc RemoteControl(int numButton){
+        this.numButton = numButton;
+        onCommands = new Command[this.numButton];
+        offCommands = new Command[this.numButton];
         
         Command noCommand = new Command();
-        for(int i = 0; i < 2; i++){
+        for(int i = 0; i < this.numButton; i++){
             onCommands[i] = noCommand;
             offCommands[i] = noCommand;
         }
@@ -65,19 +246,26 @@ public class RemoteControl{
     
     public void onButtonWasPushed(int slot){
         onCommands[slot].execute();
+        undoCommand = onCommands[slot];
     }
     
     public void offButtonWasPushed(int slot){
         offCommands[slot].execute();
+        undoCommand = offCommands[slot];
+    }
+    
+    public void undoButtonWasPushed(){
+        undoCommand.undo();
     }
 }
 
 public class RemoteLoader{
     public static void main(String[] args){
-        RemoteControl remoteControl = new RemoteControl();
+        RemoteControl remoteControl = new RemoteControl(5);
         
         Light livingLight = new Light("living room");
         Light bedroomLight = new Light("bedroom");
+        CeilingFan livingCeilingFan = new CeilingFan("living room");
         
         LightOnCommand livingLightOn = new LightOnCommand(livingLight);
         LightOffCommand livingLightOff = new LightOffCommand(livingLight);
@@ -85,12 +273,22 @@ public class RemoteLoader{
         LightOnCommand bedroomLightOn = new LightOnCommand(bedroomLight);
         LightOffCommand bedroomLightOff = new LightOffCommand(bedroomLight);
         
+        CeilingFanHighCommand livingCeilingFanHigh = new CeilingFanHighCommand(livingCeilingFan);
+        CeilingFanMediumCommand livingCeilingFanMedium = new CeilingFanMediumCommand(livingCeilingFan);
+        CeilingFanLowCommand livingCeilingFanLow = new CeilingFanLowCommand(livingCeilingFan);
+        CeilingFanOffCommand livingCeilingFanOff = new CeilingFanOffCommand(livingCeilingFan);
+        
         remoteControl.setCommand(0, livingLightOn, livingLightOff);
         remoteControl.setCommand(1, bedroomLightOn, bedroomLightOff);
+        remoteControl.setCommand(2, livingCeilingFanHigh, livingCeilingFanOff);
+        remoteControl.setCommand(3, livingCeilingFanMedium, livingCeilingFanOff);
+        remoteControl.setCommand(4, livingCeilingFanLow, livingCeilingFanOff);
         
         remoteControl.onButtonWasPushed(0);
         remoteControl.onButtonWasPushed(1);
+        remoteControl.undoButtonWasPushed();
         remoteControl.offButtonWasPushed(0);
+        remoteControl.undoButtonWasPushed();
         remoteControl.offButtonWasPushed(1);
     }
 }

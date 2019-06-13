@@ -1,8 +1,24 @@
+public class Light{
+    public String room;
+    
+    public Light(String room){
+        this.room = room;
+    }
+    
+    public void on(){
+        System.out.println(room + " light is on.");
+    }
+    
+    public void off(){
+        System.out.println(room + " light is off.");
+    }
+}
+
 public interface Command{
     public void execute();
 }
 
-public class LightOnCommand{
+public class LightOnCommand implements Command{
     public Light light;
     
     public LightOnCommand(Light light){
@@ -10,6 +26,71 @@ public class LightOnCommand{
     }
     
     public void execute(){
-        light.turnOn();
+        light.on();
+    }
+}
+
+public class LightOffCommand implements Command{
+    public Light light;
+    
+    public LightOffCommand(Light light){
+        this.light = light;
+    }
+    
+    public void execute(){
+        light.off();
+    }
+}
+
+public class RemoteControl{
+    // Remote Control only binds button and command, doesn't care bind to which furniture
+    Command[] onCommands;
+    Command[] offCommands;
+    
+    pubilc RemoteControl(){
+        onCommands = new Command[2];
+        offCommands = new Command[2];
+        
+        Command noCommand = new Command();
+        for(int i = 0; i < 2; i++){
+            onCommands[i] = noCommand;
+            offCommands[i] = noCommand;
+        }
+    }
+    
+    public void setCommand(int slot, Command onCommand, Command offCommand){
+        onCommands[slot] = onCommand;
+        offCommands[slot] = offCommand;
+    }
+    
+    public void onButtonWasPushed(int slot){
+        onCommands[slot].execute();
+    }
+    
+    public void offButtonWasPushed(int slot){
+        offCommands[slot].execute();
+    }
+}
+
+public class RemoteLoader{
+    public static void main(String[] args){
+        RemoteControl remoteControl = new RemoteControl();
+        
+        Light livingLight = new Light("living room");
+        Light bedroomLight = new Light("bedroom");
+        
+        LightOnCommand livingLightOn = new LightOnCommand(livingLight);
+        LightOffCommand livingLightOff = new LightOffCommand(livingLight);
+        
+        LightOnCommand bedroomLightOn = new LightOnCommand(bedroomLight);
+        LightOffCommand bedroomLightOff = new LightOffCommand(bedroomLight);
+        
+        remoteControl.setCommand(0, livingLightOn, livingLightOff);
+        remoteControl.setCommand(1, bedroomLightOn, bedroomLightOff);
+        
+        remoteControl.onButtonWasPushed(0);
+        remoteControl.onButtonWasPushed(1);
+        remoteControl.offButtonWasPushed(0);
+        remoteControl.offButtonWasPushed(1);
     }
 }

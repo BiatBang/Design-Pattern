@@ -1,1 +1,110 @@
+// adapter pattern
+public interface Duck{
+    public void quack();
+    public void fly();
+}
+
+public class WhiteHorseDuck implements Duck{
+    public void quack(){
+        System.out.println("laile meinv");
+    }
     
+    public void fly(){
+        System.out.println("I'm flying");
+    }
+}
+
+public interface Turkey{
+    public void gobble();
+    public void fly();
+}
+
+public class WildTurkey{
+    public void gobble(){
+        System.out.println("goo goo");
+    }
+    
+    public void fly(){
+        System.out.println("only a short distance");
+    }
+}
+
+public class TurkeyAdapter implements Duck{
+    Turkey turkey;
+    
+    public Turkey(Turkey turkey){
+        this.turkey = turkey;
+    }
+    
+    public void quack(){
+        this.turkey.gobble();
+    }
+    
+    public void fly(){
+        this.turkey.fly();
+    }
+}
+
+public class DuckTest{
+
+    public static void main(String[] args){
+        Turkey turkey = new Turkey();
+        // TurkeyAdapter turkeyAdapter = new TurkeyAdapter(turkey); note this is not appropriat, for we want Duck object
+        Duck turkeyAdapter = new TurkeyAdapter(turkey);
+        testDuck(turkeyAdapter);
+    }
+    
+    public void testDuck(Duck duck){
+        duck.quack();
+        duck.fly();
+    }   
+}
+
+
+/////////////////////////////facade pattern/////////////////////////////
+public class Light{
+    public void dim(){
+        System.out.println("light dimmed");
+    }
+    
+    public void bright(){
+        System.out.println("light bright");
+    }
+}
+
+public class Screen{
+    public void on(){
+        System.out.println("screen on");
+    }
+    
+    public void off(){
+        System.out.println("screen off");
+    }
+}
+
+public class HomeTheatreFacade{
+    Light light;
+    Screen screen;
+    
+    public HomeTheaterFacade(Light light, Screen screen){
+        this.light = light;
+        this.screen = screen;
+    }
+    
+    public void watchMovie(){
+        this.light.dim();
+        this.screen.on();
+    }
+    
+    public void endMovie(){
+        this.light.bright();
+        this.screen.off();
+    }
+}
+
+
+
+
+
+
+

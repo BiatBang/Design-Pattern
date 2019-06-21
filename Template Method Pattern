@@ -1,0 +1,75 @@
+// model
+public abstract class AbstractClass{
+    // make template final
+    public final void templateMethod(){
+        primitiveOperation1();
+        primitiveOperation2();
+        concreteMethod();
+        hook();
+    }
+    
+    public abstract void primitiveOperation1();
+    public abstract void primitiveOperation2();
+    
+    public final void concreteMethod(){
+        // implementation
+    }
+    
+    public void hook(){
+        // nothing here
+    }
+}
+
+public abstract class CaffeineBeverageWithHook{
+    
+    public final prepare(){
+        boilWater();
+        brew();
+        pourInCup();
+        if(customerWantsCondiments()){
+            addCondiments();
+        }
+    }
+    
+    public final void boilWater(){
+        System.out.println("boil some water");
+    }
+    
+    public final void pourInCup(){
+        System.out.println("pour water into cup");
+    }
+    
+    public absrtact void brew();
+    
+    public abstract void addCondiments();
+    
+    public boolean customerWantsCondiments(){
+        return true;
+    }
+}
+
+public class CoffeeWithHook extends CoffeineBeverageWithHook{
+    public void brew(){
+        System.out.println("brew some coffee");
+    }
+    
+    public void addCondiments(){
+        System.out.println("add sth.");
+    }
+    
+    public boolean customerWantsCondiments(){
+        System.out.println("Would you like sugar?");
+        boolean result = false;
+        // somehow use scanner to get answer and return result
+        
+        return result;
+    }
+}
+
+public class TestDrive{
+    public static void main(String[] args){
+        CoffeeWithHook cwh = new CoffeeWithHook();
+        
+        cwh.prepare();
+    }
+}

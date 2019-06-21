@@ -1,0 +1,186 @@
+public class CompositeIterator implements Iterator{
+    // stack contains current unwornout iterators
+    private Stack<Iterator> stack;
+    
+    public Composite(Iterator iterator){
+        stack = new Stack<>();
+        stack.push(iterator);
+    }
+    
+    public Object next(){
+        if(hasNext){
+            Iterator iterator = stack.peek();
+            MenuComponent menuComponent = iterator.next();
+            if(menuComponent instanceof Menu){
+                stack.push(menuComponent.createIterator());
+            }
+            return menuComponent
+        }else{
+            return null;
+        }
+    }
+    
+    public boolean hasNext(){
+        if(stack.isEmpty()) return false;
+        else{
+            // from top to bottom
+            Iterator iterator = stack.peek();
+            if(iterator.hasNext()){
+                return true;
+            }else{
+                // peek is worn out, seek the next one until an iterator with next, or just return false
+                stack.pop();
+                return hasNext();
+            }
+        }
+    }     
+    
+    public void remove(MenuComponent menuComponent){
+        throw new UnsupportedOperationException();
+    }
+}
+
+public class NullIterator implements Iterator{
+    public Object next(){
+        return null;
+    }
+    
+    public boolean hasNext(){
+        return false;
+    }
+    
+    public void remove(MenuComponent menuComponent){
+        throw new UnsupportedOperationException();
+    }
+}
+
+public abstract class MenuComponent{
+    // not every method makes sense. just let them throw exceptions
+    public void add(MenuComponent menuComponent){
+        throw new UnsupportedOperationException();
+    }
+    
+    public void remove(MenuComponent menuComponent){
+        throw new UnsupportedOperationException();
+    }
+    
+    public MenuComponent getChild(int i){
+        throw new UnsupportedOperationException();
+    }
+    
+    public String getName(){
+        throw new UnsupportedOperationException();
+    }
+    
+    public String getDescription(){
+        throw new UnsupportedOperationException();
+    }
+    
+    public double getPrice(){
+        throw new UnsupportedOperationException();
+    }
+    
+    public void print(){
+        throw new UnsupportedOperationException();
+    }
+    
+    public CompositeIterator createIterator(){
+        throw new UnsupportedOperationException();
+    }
+}
+
+public class Menu extends MenuComponent{
+    private List<MenuComponent> menuComponents;
+    private String name;
+    private String description;
+    private Iterator iterator;
+    
+    public MenuComponent(String name, String description){
+        this.menuComponents = new ArrayList<>();
+        this.name = name;
+        this.description = description;
+    }
+    
+    public void add(MenuComponent menuComponent){
+        this.menuComponents.add(menuComponent);
+    }
+    
+    public void remove(MenuComponent menuComponent){
+        this.menuComponents.remove(menuComponent);
+    }
+    
+    public MenuComponent getChild(int i){
+        return this.menuComponents.get(i);
+    }
+    
+    public String getName(){
+        return this.name;
+    }
+    
+    public String getDescription(){
+        return this.description;
+    }
+    
+    public void print(){
+        System.out.println("\n " + getName() + ":");
+        System.out.println(getDescription());
+        System.out.println("------------------------------------------");
+        
+        // not only print its own info, also the menus it contains
+        Iterator curiterator = menuComponents.iterator();
+        while(curiterator.hasNext()){
+            MenuComponent menuComponent = (MenuComponent)curiterator.next();
+            menuComponent.print();
+        }
+    }
+    
+    public Iterator createIterator(){
+        if(this.iterator == null){
+            this.iterator = new CompositeIterator(this.menuComponents.iterator());
+        }
+        return iterator;
+    }
+}
+
+public class MenuItem extends MenuComponent{
+    private String name;
+    private String description;
+    private double price;
+    
+    public String getName(){
+        return this.name;
+    }
+    
+    public String getDescription(){
+        return this.description;
+    }
+    
+    public double getPrice(){
+        return this.price;
+    }
+    
+    public void print(){
+        System.out.println(getName() + ":");
+        System.out.println(getDescription());
+        System.out.println("------------------------------------------");
+    }
+    
+    public Iterator createIterator(){
+        return new NullIterator();
+    }
+}
+
+public class Waitress{
+    // root of the menu
+    MenuComponent allMenus;
+    
+    public Waitress(MenuComponent allMenus){
+        this.allMenus = allMenus;
+    }
+    
+    public void printMenu(){
+        this.allMenus.print();
+    }
+    
+    // if you want to use createIterator, just don't print(), you'll have lots of things.
+}

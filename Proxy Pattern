@@ -1,0 +1,107 @@
+In fact, this program omits the procedure of socket connecting and binding, can't really work 
+
+------------------------------------------------------------
+
+import java.rmi.*
+
+public interface GumballMachineRemote extends Remote{
+    public int getCount() throws RemoteException;
+    public String getLocation() throws RemoteException;
+    public State getState() throws RemoteException;
+}
+
+public class GumballMachine extends UnicastRemoteObject implements GumballMachineRemote{
+    private int count;
+    private String location;
+    private State state;
+    
+    public GumballMachine(String loaction, int count) throws RemoteExcetion{
+        
+    }
+    
+    public int getCount(){
+        return this.count;
+    }
+    
+    public String getLocation(){
+        return this.loaction;
+    }
+    
+    public State getState(){
+        return this.state;
+    }
+}
+
+public class GumballMachineTestDrive{
+    public static void main(String[] args){
+        // receive params from args
+        
+        GumballMachineRemote gumballMachine = null;
+        int count;
+        if(args.length != 2) System.exit(1); // error warning
+        
+        try{
+            count = Integer.parseInt(args[1]);
+            gumballMachine = new GumballMachine(args[0], count);
+            // now we bind remote and real machine
+            Naming.rebind("//" + args[0] + "/machine", gumballMachine);
+            
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        
+    }
+}
+------------------------------------------------------------
+
+public interface State extends Serializable{
+    public void insertQuater();
+    public void ejectQuater();
+    public void turnCrank();
+    public void dispense();
+}
+
+------------------------------------------------------------
+public class GumballMonitor{
+    GumballMachineRemote machine;
+    // now we aims to monitor a remote rather than a real machine
+    
+    public GumballMonitor(GumballMachineRemote machine){
+        this.machine = machine;
+    }
+    
+    public void report(){
+        try{
+            // since here we retrieve objects from server end, we need to throw RemoteException
+            System.out.println("machine location is : " + machine.getLocation());
+            System.out.println("machine state is: " + machine.getState());
+            System.out.println("current # gumball: " + machine.getCount());
+        }catch(RemoteException e){
+            e.printStackTrace();
+        }
+    }
+}
+
+public class GumballMonitorTestDrive{
+    public static void main(String[] args){
+        String[] locations = {"rmi://santafe.machine",
+                                "rmi://seattle.machine",
+                                "rmi://boulder.machine"};
+        GumballMonitor[] monitors = new GumballMonitor[locations.length];
+        
+        for(int i = 0; i < locations.length; i++){
+            try{
+                // use remote instead of actual machine
+                GumballMachineRemote machine = (GumballMachineRemote) Naming.lookup(locations[i]);
+                monitor[i] = new GumballMonitor(machine);
+                System.out.println(monitor[i]);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+        
+        for(GumballMonitor monitor: monitors){
+            monitor.report();
+        }
+    }
+}

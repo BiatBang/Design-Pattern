@@ -52,7 +52,6 @@ public class GumballMachineTestDrive{
         
     }
 }
-------------------------------------------------------------
 
 public interface State extends Serializable{
     public void insertQuater();
@@ -62,6 +61,8 @@ public interface State extends Serializable{
 }
 
 ------------------------------------------------------------
+// Client end
+
 public class GumballMonitor{
     GumballMachineRemote machine;
     // now we aims to monitor a remote rather than a real machine
@@ -105,3 +106,116 @@ public class GumballMonitorTestDrive{
         }
     }
 }
+
+
+
+
+
+------------------------------------------------------------
+// Dynamic Proxy
+// means it's not like normal proxy, initialized once the program run
+// we new a proxy whenever we want one
+
+public interface PersonBean{
+    public void setName(String name);
+    public void setGender(String gender);
+    public void setRate(int rating);
+    
+    public String getName();
+    public String getGender();
+    public int getRate();
+}
+
+public class PersonBeanImpl implements PersonBean{
+    String name;
+    String gender;
+    int rating;
+    int ratingCount;
+    
+    public PersonBean(){
+        ratingCount = 0;
+    }
+    
+    // series of getters and setters
+    
+    public int getRate(){
+        if(ratingCount == 0) return 0;
+        return (rating / ratingCount);
+    }
+    
+    public void setRate(int rating){
+        this.rating += rating;
+        ratingCount++;
+    }
+}
+
+// now we need to create two invocation handlers, since we want to restrict different roles' capabilities
+
+public class OwnerInvocationHandler implements InvocationHandler{
+    PersonBean person;
+    
+    public OwnerInvocationHandler(PersonBean person){
+        this.personBean = person;
+    }
+    
+    // invoke is the main job of this
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws IllegalAccessException{
+        try{
+            if(method.getName().startsWith("get"){
+                // means a getter, owner has access
+                // first param is object the method belongs to.
+                // method here is getter(getName...), it belongs to PersonBean, so obj is (PersonBean)person.
+                // 2nd param is args, in getter, is null
+                return method.invoke(person, args);
+            }else if(method.getName.equals("setRate")){
+                // owner can't access setRate of him/herself
+                throws new IllegalAccessException();
+            }
+            else if(method.getName().startsWith("set"){
+                // same as getter
+                return method.invoke(person, args);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+}
+
+// nonowner is just like this, just some difference in access
+public class NonOwnerInvocationHandler implements InvocationHandler{
+    
+}
+
+public class MatchMakingTestDrive{
+    public static void main(String[] args){
+        
+    }
+    
+    public void drive(){
+        PersonBean marie = new PersonBean(); // initialize
+        PersonBean ownerProxy = getOwnerProxy(marie);
+        ownerProxy.setGender("girl");
+        // now we can treat ownerProxy as an actual PersonBean object.
+        // except it throws exception when calling "setRate"
+    }
+    
+    
+    // this is the proxy of concrete Personbean, via invocation handler
+    public PersonBean getOwnerProxy(PersonBean person){
+        return (PersonBean)Proxy.newProxyInstance(
+            person.getClass().getClassLoader(),
+            person.getClass().getInterfaces(),
+            new OwnerInvocationHandler(marie));
+    }
+
+}
+
+
+
+
+
+
+
+

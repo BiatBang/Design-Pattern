@@ -1,0 +1,95 @@
+// basic classes
+
+public interface Quackable{
+    public void quack();
+}
+
+public class DonaldDuck implements Quackable{
+    public void quack(){
+        System.out.println("quack!");
+    }
+}
+
+public class BaimaDuck implements Quackable{
+    public void quack(){
+        System.out.println("laila!");
+    }
+}
+
+// we want to add goose, and let it work like duck
+// adapter pattern
+
+public class Goose{
+    public void honk(){
+        system.out.println("honk");
+    }
+}
+
+public class GooseAdapter implements Quackable{
+    public Goose goose;
+    
+    public GooseAdapter(Goose goose){
+        this.goose = goose;
+    }
+    
+    @Override
+    public void quack(){
+        this.goose.honk();
+    }
+}
+
+// we want to add quack counter feature, without modifying existed classes
+// decorator pattern
+
+public class QuackCounter implements Quackable{
+    public Quackable duck;
+    private static int countQuack = 0;
+    
+    public QuackCounter(Quackable duck){
+        this.duck = duck;
+    }
+    
+    @Override 
+    public void quack(){
+        System.out.println("quack!");
+        this.countQuack++;
+    }
+    
+    public int getCount(){
+        return countQuack;
+    }
+}
+
+// we want to create a decorated duck without manually decorating
+// factory pattern
+
+public abstract class AbstractQuackableFactory{
+    public Quackable createDonaldDuck();
+    public Quackable createBaimaDuck();
+}
+
+public class QuackableFactory extends AbstractQuackableFactory{
+    @Override
+    public Quackable createDonaldDuck(){
+        return new DonaldDuck();
+    }
+    
+    @Override
+    public Quackable createBaimaDuck(){
+        return new BaimaDuck();
+    }
+}
+
+public class QuackCounterFactory extends AbstractQuackableFactory{
+    @Override
+    public Quackable CountDonaldDuck(){
+        return new QuackCounter(new DonaldDuck());
+    }
+    
+    @Override
+    public Quackable CountBaimaDuck(){
+        return new QuackCounter(new BaimaDuck());
+    }
+}
+
+  

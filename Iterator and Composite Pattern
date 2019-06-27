@@ -1,3 +1,5 @@
+// basically, the aim of composite pattern is to treat "individual objects" and "group of individuals" as the same
+
 public class CompositeIterator implements Iterator{
     // stack contains current unwornout iterators
     private Stack<Iterator> stack;

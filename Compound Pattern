@@ -92,4 +92,91 @@ public class QuackCounterFactory extends AbstractQuackableFactory{
     }
 }
 
+// in order to control a flock of ducks, instead of control ducks one by one
+// iterator and composite pattern
+
+public class Flock implements Quackable{
+    public List<Quackable> ducks = new ArrayList<>();
+    
+    public void add(Quackable duck){
+        this.ducks.add(duck);
+    }
+    
+    @Override
+    public void quack(){
+        Iterator iterator = ducks.iterator();
+        while(iterator.hasNext()){
+            Quackable duck = (Quackable) iterator.next();
+            duck.quack();
+        }
+    }
+}
   
+
+// now we want to know a duck quack immediately
+// observer pattern
+
+// subject
+public interface QuackObservable{
+    public void registerObserver(Observer observer);
+    public void notifyAll();
+}
+
+// now, we need to do some modification on Quackable to let it be "subject"
+public interface Quackable extends QuackObservable{
+    public void quack();
+}
+
+// here we use a helper class Observable to handle register and notify
+public class Observable implements QuackObservable{
+    List<Observer> observers = new ArrayList<>();
+    // to know specific duck
+    QuackObservable duck;
+    
+    public Observable(QuackObservable duck){
+        this.duck = duck; 
+    }
+    
+    @Override
+    public void registerObserver(Observer observer){
+        observers.add(observer);
+    }
+    
+    @Override
+    public void notifyAll(){
+        Iterator iterator = observers.iterator();
+        while(iterator.hasNext()){
+            Observer observer = (Observer) iterator.next();
+            observer.update(duck);
+        }
+    }
+}
+
+// now go back to concrete duck classes, still implements Quackable
+// actually already implemented QuackObservable
+public class DonaldDuck implements Quackable{
+    // use the helper class
+    Observable observable;
+    
+    public DonaldDuck(){
+        this.observable = new Observable(this);
+    }
+    
+    @Override
+    public void registerObserver(Observer observer){
+        this.observable.registerObserver(observer);
+    }
+    
+    @Override
+    public void notifyAll(){
+        this.observable.notifyAll();
+    }
+    
+    @Override
+    public void quack(){
+        System.out.println("quack!");
+        notifyAll();
+    }
+}
+
+// counter mode need to be modified, too
